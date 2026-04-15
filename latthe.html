@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Memory Card - Nguyên tố hóa học</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #74ebd5, #9face6);
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #fff;
+        }
+
+        .score {
+            font-size: 18px;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(5, 120px);
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .card {
+            width: 120px;
+            height: 80px;
+            background-color: #ffcc70;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card.flipped {
+            background-color: #ffffff;
+            cursor: default;
+        }
+
+        .card.matched {
+            visibility: hidden;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background-color: #ff7a18;
+            color: #fff;
+        }
+
+        button:hover {
+            background-color: #ff5722;
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<h1>🧠 Memory Card - Nguyên tố hóa học</h1>
+<div class="score">Điểm: <span id="score">0</span></div>
+
+<div class="game-board" id="gameBoard"></div>
+
+<button onclick="resetGame()">🔄 Chơi lại</button>
+
+<div class="message" id="message"></div>
+
+<script>
+    const elements = [
+        { name: "Hydrogen", symbol: "H" },
+        { name: "Helium", symbol: "He" },
+        { name: "Carbon", symbol: "C" },
+        { name: "Nitrogen", symbol: "N" },
+        { name: "Oxygen", symbol: "O" },
+        { name: "Sodium", symbol: "Na" },
+        { name: "Calcium", symbol: "Ca" },
+        { name: "Iron", symbol: "Fe" },
+        { name: "Sulfur", symbol: "S" },
+        { name: "Chlorine", symbol: "Cl" }
+    ];
+
+    let cards = [];
+    let firstCard = null;
+    let secondCard = null;
+    let lockBoard = false;
+    let score = 0;
+
+    const board = document.getElementById("gameBoard");
+    const scoreEl = document.getElementById("score");
+    const messageEl = document.getElementById("message");
+
+    function initGame() {
+        board.innerHTML = "";
+        messageEl.textContent = "";
+        score = 0;
+        scoreEl.textContent = score;
+        firstCard = null;
+        secondCard = null;
+        lockBoard = false;
+
+        cards = [];
+
+        elements.forEach(el => {
+            cards.push({ text: el.name, pair: el.symbol });
+            cards.push({ text: el.symbol, pair: el.name });
+        });
+
+        cards.sort(() => Math.random() - 0.5);
+
+        cards.forEach(cardData => {
+            const card = document.createElement("div");
+            card.classList.add("card");
+            card.dataset.text = cardData.text;
+            card.dataset.pair = cardData.pair;
+            card.textContent = "?";
+
+            card.addEventListener("click", () => flipCard(card));
+            board.appendChild(card);
+        });
+    }
+
+    function flipCard(card) {
+        if (lockBoard || card.classList.contains("flipped")) return;
+
+        card.classList.add("flipped");
+        card.textContent = card.dataset.text;
+
+        if (!firstCard) {
+            firstCard = card;
+            return;
+        }
+
+        secondCard = card;
+        checkMatch();
+    }
+
+    function checkMatch() {
+        lockBoard = true;
+
+        if (firstCard.dataset.text === secondCard.dataset.pair) {
+            setTimeout(() => {
+                firstCard.classList.add("matched");
+                secondCard.classList.add("matched");
+                score++;
+                scoreEl.textContent = score;
+
+                resetTurn();
+
+                if (score === elements.length) {
+                    messageEl.textContent = "🎉 Chúc mừng! Bạn đã thuộc bài 🎉";
+                }
+            }, 500);
+        } else {
+            setTimeout(() => {
+                firstCard.classList.remove("flipped");
+                secondCard.classList.remove("flipped");
+                firstCard.textContent = "?";
+                secondCard.textContent = "?";
+                resetTurn();
+            }, 800);
+        }
+    }
+
+    function resetTurn() {
+        [firstCard, secondCard] = [null, null];
+        lockBoard = false;
+    }
+
+    function resetGame() {
+        initGame();
+    }
+
+    initGame();
+</script>
+
+</body>
+</html>

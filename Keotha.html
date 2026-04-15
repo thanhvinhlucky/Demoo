@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Trò chơi Bảng Tuần Hoàn</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+        margin: 0;
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        color: #0d47a1;
+    }
+
+    .container {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin-top: 30px;
+    }
+
+    /* Lưới 3x3 */
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 120px);
+        grid-template-rows: repeat(3, 120px);
+        gap: 10px;
+        background: #ffffffcc;
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .cell {
+        border: 3px dashed #90caf9;
+        border-radius: 10px;
+        background: #e3f2fd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    /* Khu vực thẻ */
+    .cards {
+        display: grid;
+        grid-template-columns: repeat(3, 100px);
+        gap: 15px;
+        background: #ffffffcc;
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .card {
+        background: #ffecb3;
+        border: 3px solid #ffb300;
+        border-radius: 10px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        font-weight: bold;
+        cursor: grab;
+        transition: transform 0.2s, background 0.2s;
+    }
+
+    .card:active {
+        transform: scale(1.1);
+        cursor: grabbing;
+    }
+
+    .correct {
+        background: #c8e6c9 !important;
+        border-color: #2e7d32 !important;
+        color: #1b5e20;
+    }
+
+    .wrong {
+        background: #ffcdd2 !important;
+        border-color: #c62828 !important;
+        color: #b71c1c;
+    }
+
+    .message {
+        text-align: center;
+        font-size: 26px;
+        color: #1b5e20;
+        margin-top: 25px;
+        font-weight: bold;
+    }
+</style>
+</head>
+<body>
+
+<h1>🎯 Xếp Nguyên Tố Theo Nhóm Trong Bảng Tuần Hoàn 🎯</h1>
+
+<div class="container">
+    <!-- Lưới -->
+    <div class="grid">
+        <div class="cell" data-accept="Li"></div>
+        <div class="cell" data-accept="Be"></div>
+        <div class="cell" data-accept="B"></div>
+
+        <div class="cell" data-accept="Na"></div>
+        <div class="cell" data-accept="Mg"></div>
+        <div class="cell" data-accept="Al"></div>
+
+        <div class="cell" data-accept="K"></div>
+        <div class="cell" data-accept="Ca"></div>
+        <div class="cell" data-accept="Ga"></div>
+    </div>
+
+    <!-- Thẻ -->
+    <div class="cards" id="cards">
+        <div class="card" draggable="true" data-element="Li">Li</div>
+        <div class="card" draggable="true" data-element="Na">Na</div>
+        <div class="card" draggable="true" data-element="K">K</div>
+        <div class="card" draggable="true" data-element="Be">Be</div>
+        <div class="card" draggable="true" data-element="Mg">Mg</div>
+        <div class="card" draggable="true" data-element="Ca">Ca</div>
+        <div class="card" draggable="true" data-element="B">B</div>
+        <div class="card" draggable="true" data-element="Al">Al</div>
+        <div class="card" draggable="true" data-element="Ga">Ga</div>
+    </div>
+</div>
+
+<div class="message" id="message"></div>
+
+<script>
+    let draggedCard = null;
+    let correctCount = 0;
+
+    document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('dragstart', () => {
+            draggedCard = card;
+        });
+    });
+
+    document.querySelectorAll('.cell').forEach(cell => {
+        cell.addEventListener('dragover', e => {
+            e.preventDefault();
+        });
+
+        cell.addEventListener('drop', () => {
+            if (!draggedCard || cell.children.length > 0) return;
+
+            const correctElement = cell.dataset.accept;
+            const cardElement = draggedCard.dataset.element;
+
+            if (correctElement === cardElement) {
+                cell.appendChild(draggedCard);
+                draggedCard.classList.add('correct');
+                draggedCard.setAttribute('draggable', 'false');
+                correctCount++;
+
+                if (correctCount === 9) {
+                    document.getElementById('message').innerText =
+                        "🎉 Bạn đã tìm ra quy luật biến đổi tuần hoàn! 🎉";
+                }
+            } else {
+                draggedCard.classList.add('wrong');
+                setTimeout(() => {
+                    draggedCard.classList.remove('wrong');
+                }, 600);
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
